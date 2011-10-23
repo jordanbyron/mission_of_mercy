@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'shellwords'
 
 desc 'runs the tasks necessary to setup MoM'
 task :setup do
@@ -11,8 +10,7 @@ task :setup do
   unless File.exists?(database_file)
     FileUtils.cp(database_file + '.example', database_file)
     puts "Database config file created"
-    puts "Please edit config/database.yml, and then run rake setup to continue"
-    return
+    `$EDITOR #{database_file}`
   end
 
   unless File.exists?(mom_file)
@@ -39,4 +37,5 @@ task :setup do
   Rake::Task["test"].invoke
 
   puts "--- Setup Complete ---"
+
 end

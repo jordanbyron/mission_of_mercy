@@ -1,71 +1,66 @@
-ActionController::Routing::Routes.draw do |map|
-
-  map.root :controller => :home, :action => :index
-
-  map.home '/', :controller => :home, :action => :index
-
-  map.logout '/logout', :controller => 'sessions', :action => 'destroy'
-  map.login '/login', :controller => 'sessions', :action => 'new'
-
-  map.resource :session
-
-  map.resources :support_requests
-  map.connect '/active_support_requests.:format', :controller => "support_requests", :action => "active_requests"
-
-  map.resources :treatment_areas, :collection => {:change => :post} do |area|
-    area.resources :patients,
-                   :controller => "treatment_areas/patients" do |patient|
-      patient.resources :prescriptions, :controller => "treatment_areas/patients/prescriptions"
-      patient.resources :procedures,    :controller => "treatment_areas/patients/procedures"
-      patient.resource  :survey,        :controller => "treatment_areas/patients/surveys"
+MissionOfMercy::Application.routes.draw do
+  devise_for :users
+  
+  match '/' => 'home#index'
+  match '/' => 'home#index', :as => :home
+  devise_scope :user do 
+    match '/logout' => 'devise/sessions#destroy', :as => :logout
+    match '/login' => 'devise/sessions#new', :as => :login
+  end 
+  
+  resources :support_requests
+  match '/active_support_requests.:format' => 'support_requests#active_requests'
+  resources :treatment_areas do
+    collection do
+  post :change
+  end
+  
+      resources :patients do
+    
+    
+          resources :prescriptions
+      resources :procedures
+      resource :survey
     end
   end
 
-  map.pharmacy_check_out '/pharmacy/check_out/:patient_id', :controller => :pharmacy, :action => :check_out
-  map.pharmacy_finalize  '/pharmacy/finalize/:patient_id',  :controller => :pharmacy, :action => :check_out_complete
-  map.resources :patients, :collection => { :lookup_zip => :get, :lookup_city => :post }
-  map.resources :patient_procedures
-
-  map.resources :assignment_desk
-
-  map.print_chart '/patients/:id/print', :controller => 'patients', :action => 'print'
-
-  map.export_to_dexis_file '/patients/:patient_id/export', :controller => 'patients', :action => 'export_to_dexis_file'
-
-  map.status '/status', :controller => 'status', :action => 'index'
-
-  map.namespace :admin do |admin|
-    admin.resources :treatment_areas
-    admin.resources :procedures
-    admin.resources :pre_meds
-    admin.resources :prescriptions
-    admin.resources :users
-    admin.resources :support_requests, :collection => {:destroy_all => :delete}
-
-    admin.reports                            '/reports',
-                                             :controller => 'reports',
-                                             :action     => 'index'
-    admin.clinic_summary_report              '/reports/clinic_summary/',
-                                             :controller => 'reports',
-                                             :action     => 'clinic_summary'
-    admin.treatment_area_distribution_report '/reports/treatment_area_distribution',
-                                             :controller => 'reports',
-                                             :action     => 'treatment_area_distribution'
-    admin.post_clinic_report                 '/reports/post_clinic',
-                                             :controller => 'reports',
-                                             :action     => 'post_clinic'
-    admin.export_patients                    '/reports/export_patients',
-                                             :controller => 'reports',
-                                             :action     => 'export_patients'
-    admin.maintenance                        '/maintenance',
-                                             :controller => 'maintenance',
-                                             :action     => 'index'
-    admin.maintenance_reset                  '/maintenance/reset',
-                                             :controller => 'maintenance',
-                                             :action     => 'reset'
-    admin.maintenance_reset_distribution     '/maintenance/reset_distribution',
-                                              :controller => 'maintenance',
-                                              :action     => 'reset_distribution'
+  match '/pharmacy/check_out/:patient_id' => 'pharmacy#check_out', :as => :pharmacy_check_out
+  match '/pharmacy/finalize/:patient_id' => 'pharmacy#check_out_complete', :as => :pharmacy_finalize
+  resources :patients do
+    collection do
+  get :lookup_zip
+  post :lookup_city
+  end
+  
+  
   end
 
+  resources :patient_procedures
+  resources :assignment_desk
+  match '/patients/:id/print' => 'patients#print', :as => :print_chart
+  match '/patients/:patient_id/export' => 'patients#export_to_dexis_file', :as => :export_to_dexis_file
+  match '/status' => 'status#index', :as => :status
+  namespace :admin do
+      resources :treatment_areas
+      resources :procedures
+      resources :pre_meds
+      resources :prescriptions
+      resources :users
+      resources :support_requests do
+        collection do
+    delete :destroy_all
+    end
+    
+    
+    end
+      match '/reports' => 'reports#index', :as => :reports
+      match '/reports/clinic_summary/' => 'reports#clinic_summary', :as => :clinic_summary_report
+      match '/reports/treatment_area_distribution' => 'reports#treatment_area_distribution', :as => :treatment_area_distribution_report
+      match '/reports/post_clinic' => 'reports#post_clinic', :as => :post_clinic_report
+      match '/reports/export_patients' => 'reports#export_patients', :as => :export_patients
+      match '/maintenance' => 'maintenance#index', :as => :maintenance
+      match '/maintenance/reset' => 'maintenance#reset', :as => :maintenance_reset
+      match '/maintenance/reset_distribution' => 'maintenance#reset_distribution', :as => :maintenance_reset_distribution
+  end
+  root :to => 'home#index'
 end

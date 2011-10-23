@@ -1,20 +1,31 @@
-source :gemcutter
+source 'http://rubygems.org'
 
-gem 'rails',         '~> 2.3.4'
-gem 'pg',            '~> 0.9.0'
-gem 'will_paginate', '~> 2.3.11'
-gem 'haml',          '~> 3.0'
+gem 'rails', '~> 3.1.0'
 
-gem 'restful-authentication', :git =>
-  "git@github.com:CTMissionofMercy/restful-authentication.git"
+gem 'pg'
+gem 'haml', '~> 3.0'
 
-gem 'scriptaculous_slider', :git =>
-  "git://github.com/seamusabshere/scriptaculous_slider.git"
+# TODO Re-enable asset pipeline
+# group :assets do
+#   gem 'sass-rails', "  ~> 3.1.0"
+#   gem 'coffee-rails', "~> 3.1.0"
+#   gem 'uglifier'
+# end
 
-gem "fastercsv"
+gem 'jquery-rails'
+
 
 group :test do
+  # Pretty printed test output
+  gem 'turn', :require => false
   gem "contest"
   gem "test-unit"
   gem "faker", '~> 0.9.5'
 end
+
+gem "will_paginate",'3.0.pre'
+gem "devise"
+
+# TODO Remove when we've upgraded to Ruby 1.9.2
+gem "fastercsv"
+
