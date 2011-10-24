@@ -18,17 +18,37 @@ module TestHelper
   end
   
   def valid_patient
-    Patient.new(
-      :first_name         => "Jordan",
-      :last_name          => "Byron",
-      :date_of_birth      => Date.civil(1985, 12, 26),
-      :sex                => "M",
-      :race               => "AMERICAN",
-      :chief_complaint    => "Too Amazing",
-      :last_dental_visit  => "Today",
-      :travel_time        => 1,  
-      :city               => "Naugatuck", 
-      :state              => "CT")
+    patient = Patient.new(
+        :first_name        => "Jordan",
+        :last_name         => "Byron",
+        :date_of_birth     => Date.civil(1985, 12, 26),
+        :sex               => "M",
+        :race              => "AMERICAN",
+        :chief_complaint   => "Too Amazing",
+        :last_dental_visit => "Today",
+        :travel_time       => 1,
+        :city              => "Naugatuck",
+        :state             => "CT")
+
+    oral_procedure = Procedure.new(
+        :code        => 150,
+        :description => "Oral Exam",
+        :cost        => 90
+    )
+
+    film_procedure = Procedure.new(
+        :code        => 330,
+        :description => "Film",
+        :cost        => 125
+    )
+
+    patient.procedures << oral_procedure
+    patient.procedures << film_procedure
+    patient
+  end
+
+  def patient_export
+    File.open("test/export_files/patient.csv", "r").read
   end
 end
 

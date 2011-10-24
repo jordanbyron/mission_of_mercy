@@ -1,0 +1,11 @@
+Patient
+id,first_name,last_name,date_of_birth,sex,street,city,state,zip,race,travel_time,attended_previous_mom_event,previous_mom_event_location,chief_complaint,last_dental_visit,pain,pain_length_in_days,created_at,updated_at,survey_id,assigned_treatment_area_id,phone,radiology
+,Jordan,Byron,12/26/1985,M,,Naugatuck,CT,,AMERICAN,1.0,,,Too Amazing,Today,,,,,,,,false
+Procedures
+id,code,description,requires_tooth_number,requires_surface_code,procedure_type,auto_add,cost,number_of_surfaces,created_at,updated_at
+,150,Oral Exam,,,,,90.0,,,
+,330,Film,,,,,125.0,,,
+Prescriptions
+None
+Pre-Meds
+None
