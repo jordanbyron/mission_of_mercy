@@ -16,7 +16,7 @@ MoM.init = function(auth_token){
 
   MoM.Support.startPolling();
 
-  jQuery(function($) {
+  $(function($) {
     $('img.help').click(function(e){
       helpBox = $(e.target).attr('data-help');
 
@@ -30,8 +30,8 @@ MoM.init = function(auth_token){
 }
 
 MoM.disableEnterKey = function(){
-  $(document).observe('keypress', function(e) {
-    if(e.keyCode == 13) e.stop();
+  $(document).keypress(function(e) {
+    if(e.keyCode == 13) e.preventDefault();
   });
 }
 
@@ -44,15 +44,22 @@ MoM.setupNamespace("Support");
 
 // Toggle to disable support
 MoM.Support.Enabled  = true;
-MoM.Support.Interval = 20;
+MoM.Support.Interval = 20;    // In seconds
+MoM.Support.Timer    = null;
 
 MoM.Support.startPolling = function (){
-  new PeriodicalExecuter(MoM.Support.checkForRequests, MoM.Support.Interval);
+  var interval = MoM.Support.Interval * 1000;
+  MoM.Support.Timer = setInterval(MoM.Support.checkForRequests, interval);
+
+  $('#help_link').click(function(){
+    $('#help_loading').show();
+    $(this).hide();
+  });
 }
 
-MoM.Support.checkForRequests = function (executer){
+MoM.Support.checkForRequests = function (){
   if(MoM.Support.Enabled){
-    jQuery.getJSON('/active_support_requests.json',
+    $.getJSON('/active_support_requests.json',
       { authenticity_token: MoM.AuthToken},
       function(data){
         MoM.Support.processRequests(data);
@@ -60,7 +67,7 @@ MoM.Support.checkForRequests = function (executer){
     );
   }
   else
-   executer.stop();
+    clearInterval(MoM.Support.Timer);
 }
 
 MoM.Support.processRequests = function(data){
@@ -68,22 +75,22 @@ MoM.Support.processRequests = function(data){
 
     var text    = "Help needed at " + data.requests;
     var options = {
-			'icon': '/images/activebar/icon.png',
-			'button': '/images/activebar/close.png',
+			'icon': '/assets/activebar/icon.png',
+			'button': '/assets/activebar/close.png',
 			'highlight': 'InfoBackground',
 			'border': 'InfoBackground'
 		}
 
-    if(jQuery.fn.activebar.container != null){
-      jQuery('.content',jQuery.fn.activebar.container).html(text);
-      jQuery.fn.activebar.updateBar(options);
+    if($.fn.activebar.container != null){
+      $('.content',$.fn.activebar.container).html(text);
+      $.fn.activebar.updateBar(options);
 
-      if(!jQuery.fn.activebar.container.is(':visible'))
-        jQuery.fn.activebar.show();
+      if(!$.fn.activebar.container.is(':visible'))
+        $.fn.activebar.show();
     }
     else
     {
-      jQuery('<div></div>').html(text).activebar(options);
+      $('<div></div>').html(text).activebar(options);
   	}
   }
   else if(data.help_requested){
@@ -91,20 +98,20 @@ MoM.Support.processRequests = function(data){
   }
   else
   {
-    if(jQuery.fn.activebar && ($('help_link') && $('help_link').visible()) || $('help_link') == null)
-      jQuery.fn.activebar.hide();
+    if($.fn.activebar && ($('#help_link') && $('#help_link').is(':visible')) || $('#help_link') == null)
+      $.fn.activebar.hide();
   }
 }
 
 MoM.Support.showSupportRequested = function(id){
   MoM.Support.Enabled = false;
 
-  if($('help_link') != null) $('help_link').hide();
+  if($('#help_link') != null) $('#help_link').hide();
 
   var text = "Help is on the way. <span style='float:right;'> Click here to cancel your request:</span>";
 
   var closeCallback = function(){
-    jQuery.ajax({
+    $.ajax({
       type: "PUT",
       url: '/support_requests/' + id,
       dataType: "script",
@@ -114,8 +121,8 @@ MoM.Support.showSupportRequested = function(id){
 
 
   var options = {
-    'icon': '/images/activebar/icon.png',
-    'button': '/images/activebar/close.png',
+    'icon': '/assets/activebar/icon.png',
+    'button': '/assets/activebar/close.png',
     'highlight': 'none repeat scroll 0 0 #d23234',
     'background': 'none repeat scroll 0 0 #d23234',
     'border': '#d23234',
@@ -123,31 +130,32 @@ MoM.Support.showSupportRequested = function(id){
     onClose: closeCallback
   }
 
-  if(jQuery.fn.activebar.container != null){
-    jQuery('.content',jQuery.fn.activebar.container).html(text);
-    jQuery.fn.activebar.updateBar(options);
+  if($.fn.activebar.container != null){
+    $('.content',$.fn.activebar.container).html(text);
+    $.fn.activebar.updateBar(options);
 
-    if(!jQuery.fn.activebar.container.is(':visible'))
-      jQuery.fn.activebar.show();
+    if(!$.fn.activebar.container.is(':visible'))
+      $.fn.activebar.show();
   }
   else
   {
-    jQuery('<div></div>').html(text).activebar(options);
+    $('<div></div>').html(text).activebar(options);
   }
 }
 
 MoM.Support.startStatusPolling = function(){
-  new PeriodicalExecuter(MoM.Support.checkForStatusRequests, 15);
+  var interval = 15 * 1000;
+  setInterval(MoM.Support.checkForStatusRequests, interval);
 }
 
-MoM.Support.checkForStatusRequests = function (executer){
-  jQuery.ajax({
+MoM.Support.checkForStatusRequests = function (){
+  $.ajax({
     url: '/status',
     timeout: 2000,
     dataType: "script",
     error: function(){
-      $(document.body).addClassName('red')
-      jQuery('#requests').html("<h1>Error connecting to server</h1>");
+      $(document.body).addClass('red')
+      $('#requests').html("<h1>Error connecting to server</h1>");
     }
   });
 }

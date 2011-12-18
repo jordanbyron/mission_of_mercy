@@ -1,11 +1,20 @@
 - content_for :header_js do
-  jQuery(function() { MoM.Helpers.checkIn({dateInput:'#{@date_input}'}); });
+  :plain
+    $(function(){
+      var options = {
+        lastPatientId: #{@last_patient.try(:id) || 'null'},
+        dateInput:     '#{@date_input}'
+      };
 
-= f.error_messages
+      MoM.Checkin.init(options);
+    });
 
 = hidden_field_tag :date_input
 
 #demographics{:style=>"height: 350px;"}
+
+  = f.error_messages
+
   %div.input-left
 
     %h4 1: Demographics
@@ -47,14 +56,15 @@
         %span.formw= f.text_field :city
         = image_tag "spinner.gif", :id => "city-spinner", :style => "display: none;",
           :class => "spinner"
-        #city_autocomplete.autocomplete
-        :javascript
-          new Ajax.Autocompleter('patient_city', 'city_autocomplete', '#{lookup_city_patients_path}', {
-            paramName: 'city',
-            minChars: 2,
-            indicator: 'city-spinner',
-            parameters: "authenticity_token=" + encodeURIComponent("#{escape_javascript(form_authenticity_token)}")
-          });
+        /#city_autocomplete.autocomplete
+        / TODO Replace with jQuery
+        / :javascript
+        /   new Ajax.Autocompleter('patient_city', 'city_autocomplete', '#{lookup_city_patients_path}', {
+        /     paramName: 'city',
+        /     minChars: 2,
+        /     indicator: 'city-spinner',
+        /     parameters: "authenticity_token=" + encodeURIComponent("#{escape_javascript(form_authenticity_token)}")
+        /   });
       %div.row
         %span.label= f.label :state
         %span.formw= f.text_field :state
@@ -82,8 +92,7 @@
       %div.row
         %span.label
           %label Is the patient in pain?
-        %span.formw
-          = yes_no_group f, :pain, "MoM.Helpers.togglePatientPain();"
+        %span.formw= yes_no_group f, :pain
       #pain_length_div.row{:style=>"display:none;"}
         %span.label= f.label :time_in_pain, "Time in pain"
         - if @patient.new_record?

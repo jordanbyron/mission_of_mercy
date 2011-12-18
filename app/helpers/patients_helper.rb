@@ -9,20 +9,13 @@ module PatientsHelper
     "display:none;" unless patient.attended_previous_mom_event
   end
 
-  def print_patient_chart
-    if @last_patient
-      %{MoM.openInBackground('#{print_chart_path(@last_patient)}');
-        Modalbox.show($('last_patient'), {title: "Patient\'s Chart Number", width: 300});}
-    end
-  end
-
-  def yes_no_group(f, attribute, onchange)
+  def yes_no_group(f, attribute)
     [
-      f.radio_button(attribute, true, :onchange => onchange),
+      f.radio_button(attribute, true),
       f.label(attribute, "Yes", :value => true),
-      f.radio_button(attribute, false, :onchange => onchange),
+      f.radio_button(attribute, false),
       f.label(attribute, "No", :value => false)
-    ].join("\n")
+    ].join("\n").html_safe
   end
 
   def dob_select_options
@@ -48,7 +41,7 @@ module PatientsHelper
               "Indian",
               "Other"
             ]
-    [ races, { :include_blank => true}, {:onchange => "MoM.Helpers.toggleOtherRace();"}]
+    [ races, { :include_blank => true} ]
   end
 
   def chief_complaint_options
