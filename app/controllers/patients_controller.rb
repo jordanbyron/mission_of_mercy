@@ -1,6 +1,6 @@
 class PatientsController < ApplicationController
   before_filter :authenticate_user!, :except => [ :lookup_zip, :lookup_city ]
-  before_filter :admin_required, :only => [ :edit, :destroy ]
+  before_filter :admin_required, :only => [ :edit, :destroy, :history ]
   before_filter :date_input
   before_filter :find_last_patient, :only => [:new]
   before_filter :set_current_tab
@@ -11,7 +11,7 @@ class PatientsController < ApplicationController
       params[:name] = nil
     end
 
-    @patients = Patient.search(params[:chart_number], params[:name],params[:page])
+    @patients = Patient.search(params[:chart_number], params[:name], params[:page])
 
     @area = params[:treatment_area_id]
     @area ||= session[:treatment_area_id] if session[:treatment_area_id]
@@ -71,7 +71,7 @@ class PatientsController < ApplicationController
     respond_to do |format|
       format.html do
         @patient.flows.create(:area_id => ClinicArea::XRAY)
-        @patient.update_attribute(:radiology, false)
+        @patient.check_out(TreatmentArea.radiology)
 
         redirect_to treatment_area_patient_procedures_path(TreatmentArea.radiology, @patient.id)
       end
@@ -107,6 +107,10 @@ class PatientsController < ApplicationController
     @patient.destroy
 
     redirect_to(patients_url)
+  end
+
+  def history
+    @patient = Patient.find(params[:patient_id])
   end
 
   private

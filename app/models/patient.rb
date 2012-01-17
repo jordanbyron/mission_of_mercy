@@ -27,6 +27,9 @@ class Patient < ActiveRecord::Base
                                    :dependent   => :delete_all
   has_many :previous_mom_clinics,  :class_name  => "PatientPreviousMomClinic",
                                    :dependent   => :delete_all
+  has_many :assignments,           :class_name  => 'PatientAssignment',
+                                   :dependent   => :delete_all
+  has_many :treatment_areas,       :through     => :assignments
 
   has_one :prosthetic,             :dependent   => :delete
   has_one :zipcode,                :class_name  => "Patient::Zipcode",
@@ -34,7 +37,6 @@ class Patient < ActiveRecord::Base
                                    :primary_key => "zip"
 
   belongs_to :survey,              :dependent  => :delete
-  belongs_to :assigned_treatment_area, :class_name => "TreatmentArea"
 
   accepts_nested_attributes_for :survey
   accepts_nested_attributes_for :prosthetic
@@ -58,6 +60,7 @@ class Patient < ActiveRecord::Base
                                 :with        => /^[\(\)0-9\- \+\.]{10,20}$/,
                                 :allow_blank => true
   validates_numericality_of :travel_time, :greater_than => 0
+
   attr_accessor :race_other
   attr_reader   :time_in_pain
 
@@ -71,8 +74,8 @@ class Patient < ActiveRecord::Base
       ["id = ?", -1]
     end
 
-		Patient.where(conditions).order('id').paginate(:per_page => 30, :page => page)
-	end
+    Patient.where(conditions).order('id').paginate(:per_page => 30, :page => page)
+  end
 
   def chart_number
     id
@@ -102,15 +105,44 @@ class Patient < ActiveRecord::Base
     patient_procedures.group_by(&:procedure)
   end
 
-  def check_out(area)
-    unless area == TreatmentArea.radiology
-      self.flows.create(:area_id => ClinicArea::CHECKOUT,
-                        :treatment_area_id => area.id)
+  def check_out(area_id)
+    current_assignment = assignments.not_checked_out.where(treatment_area_id: area_id).first
+    if current_assignment
+      current_assignment.update_attribute(:checked_out_at, Time.now)
 
-      self.update_attributes(:assigned_treatment_area_id => nil,
-                             :survey_id                  => nil,
-                             :radiology                  => false)
+      area = current_assignment.treatment_area
+      unless area.radiology?
+        self.flows.create(area_id: ClinicArea::CHECKOUT, treatment_area: area)
+        self.update_attributes(survey_id: nil)
+      end
     end
+  end
+
+  def assign(area_id, radiology)
+    areas = []
+    assigned_areas = assigned_to
+
+    area_radiology = TreatmentArea.radiology 
+    if radiology
+      areas << area_radiology unless assigned_areas.include?(area_radiology)
+    end
+    assigned_areas.delete(area_radiology)
+
+    if area_id
+      areas << TreatmentArea.find(area_id) if assigned_areas.empty?
+    end
+
+    areas.each { |a| assignments.create(treatment_area: a) }
+
+    not areas.empty?
+  end
+
+  def assigned_to
+    assignments.not_checked_out.map(&:treatment_area)
+  end
+
+  def assigned_to?(area)
+    assigned_to.include?(area)
   end
 
   def export_to_dexis(path)
