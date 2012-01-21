@@ -3,12 +3,18 @@
 = header do
   %h1 Patient Check In
 
+.waiver_confirmation.unconfirmed
+  %p.waiver_description
+    Patient or legal guardian (if under 18) has read, understood, and
+    signed the waiver.
+    %button#waiver_agree_button Agree
+
 = form_for @patient, :html => { :autocomplete => "off" } do |f|
   = render :partial => 'form', :locals => {:f => f}
 
   #survey{:style=>"display:none; clear:both;"}
 
-    %h4 4: Survey Questions
+    %h4 5: Survey Questions
 
     %div{:style=>"padding-left: 20px; padding-bottom: 20px;"}
       = render :partial => 'surveys/check_in', :locals => {:f => f}

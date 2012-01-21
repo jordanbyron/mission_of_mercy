@@ -1,6 +1,23 @@
 @import compass/css3/border-radius
 
+.waiver_confirmation
+  padding: 5px 10px 5px 15px
+  margin-bottom: 10px
+  background-color: #70120B
+  color: #FFF
+  &.confirmed
+    background-color: #C5EEB8
+    color: #517147
+  .waiver_description
+    font-weight: bold
+  #waiver_agree_button
+    margin-left: 10px
+
 form.new_patient, form.edit_patient
+  &.disabled
+    color: #CCC
+    a, a:hover, a:visited
+      color: #CCC
   img.spinner
     display: none
 
@@ -16,6 +33,9 @@ form.new_patient, form.edit_patient
 #previous_mom_location_div span.label
   height: 200px
 
+.contact_information_header
+  h4
+    display: inline-block
 
 .last-patient
   div.top

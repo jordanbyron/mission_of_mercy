@@ -3,6 +3,19 @@ MoM.setupNamespace("Checkin");
 MoM.Checkin.init = function(options){
 
   MoM.disableEnterKey();
+  if (options.requireWaiverConfirmation == true) {
+    MoM.Checkin.disableAllFields();
+  } else {
+    MoM.Checkin.waiverConfirmed();
+  }
+
+  if(options.lastPatient.contactInformation == null) {
+    MoM.Checkin.hidePreviousContactInformationButton();
+  }
+
+  $("#waiver_agree_button").click(function() {
+    MoM.Checkin.waiverConfirmed();
+  });
 
   $('#patient_survey_attributes_heard_about_clinic').change(function(e){
     MoM.Checkin.toggleOtherHeardAbout();
@@ -24,6 +37,11 @@ MoM.Checkin.init = function(options){
   $('#date-input-toggle').click(function(){
     MoM.Checkin.toggleDateInput();
   });
+
+  $('.same_as_previous_patient_button').click(function(e) {
+    e.preventDefault();
+    MoM.Checkin.fillContactInformation(options.lastPatient.contactInformation);
+  })
 
   $('input[name="patient[attended_previous_mom_event]"]').change(function(e){
     MoM.Checkin.togglePreviousMoM();
@@ -57,19 +75,21 @@ MoM.Checkin.init = function(options){
   MoM.Checkin.togglePatientPain(false);
   MoM.Checkin.toggleOtherRace(false);
 
-  if(options.lastPatientId){
-    MoM.Checkin.printChart(options.lastPatientId);
+  if(options.lastPatient.id){
+    if(MoM.Environment != "test") {
+      MoM.Checkin.printChart(options.lastPatient.id);
+    }
 
     jQuery.facebox({ div: '#last_patient' }, 'last-patient');
 
     $('div.last-patient a').click(function(e){
       jQuery(document).trigger('close.facebox');
-      $('#patient_first_name').focus();
       e.preventDefault();
+      $('#waiver_agree_button').focus();
     });
   }
 
-  $('#patient_first_name').focus();
+  $('#waiver_agree_button').focus();
 }
 
 MoM.Checkin.printChart = function(patientId){
@@ -90,7 +110,6 @@ MoM.Checkin.togglePatientPain = function(focus){
 }
 
 MoM.Checkin.toggleDateInput = function(){
-
   if($('#date-select').is(":visible"))
     MoM.Checkin.useTextDate();
   else
@@ -98,28 +117,18 @@ MoM.Checkin.toggleDateInput = function(){
 }
 
 MoM.Checkin.useTextDate = function(){
-
   $('#date-select').hide();
-
-  $('body').append($('#date-select'));
-  $('#date-input-container').append($('#date-text'));
   $('#date-text').show();
 
   $('#date_input').val('text');
-
   $('#date-format').slideDown();
 }
 
 MoM.Checkin.useSelectDate = function(){
-
   $('#date-text').hide();
-
-  $('body').append($('#date-text'));
-  $('#date-input-container').append($('#date-select'));
   $('#date-select').show();
 
   $('#date_input').val('select');
-
   $('#date-format').slideUp();
 }
 
@@ -196,3 +205,30 @@ MoM.Checkin.showPatientSurvey = function (){
   $('#bottom_survey').show();
 }
 
+MoM.Checkin.fillContactInformation = function(contact) {
+  $("#patient_phone").val(contact.phone);
+  $("#patient_street").val(contact.street);
+  $("#patient_zip").val(contact.zip);
+  $("#patient_city").val(contact.city);
+  $("#patient_state").val(contact.state);
+}
+
+MoM.Checkin.hidePreviousContactInformationButton = function() {
+  $(".same_as_previous_patient_button").hide();
+}
+
+MoM.Checkin.waiverConfirmed = function() {
+  MoM.Checkin.enableAllFields();
+  $('.waiver_confirmation').hide();
+  $('form.new_patient input[type=text]').first().focus();
+}
+
+MoM.Checkin.enableAllFields = function() {
+  $('form.new_patient').find('input, button, select').attr('disabled', false);
+  $('form.new_patient').removeClass('disabled');
+}
+
+MoM.Checkin.disableAllFields = function() {
+  $('form.new_patient').find('input, button, select').attr('disabled', true);
+  $('form.new_patient').addClass('disabled');
+}
