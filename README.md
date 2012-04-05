@@ -15,10 +15,10 @@ or SQLite are not officially supported.
 To install a development version of Mission of Mercy, follow these steps:
 
 1. Fork our GitHub repository: <http://github.com/jordanbyron/mission_of_mercy>
-2. Clone the fork to your computer
-3. If you don't already have bundler installed, get it by running `gem install bundler`
-4. Run `bundle install` to install all of the project's dependencies
-5. Finally, run `rake setup` to create the required config files, create the database, and seed it with data
+1. Clone the fork to your computer
+1. If you don't already have bundler installed, get it by running `gem install bundler`
+1. Run `bundle install` to install all of the project's dependencies
+1. Finally, run `rake setup` to create the required config files, create the database, and seed it with data
 
 To make things even easier, you can copy and paste this into your terminal once you've got the project cloned to your computer
 
@@ -61,15 +61,15 @@ Contact Jordan through [GitHub (@jordanbyron)](https://github.com/jordanbyron) o
 
 1. If a ticket doesn't exist for your bug or feature, create one on GitHub.
     - **NOTE:** Don't be afraid to get feedback on your idea before you begin development work. In fact it is encouraged. I promise I don't bite ;)
-2. Fork the project.
-3. Create a topic branch.
-4. Implement your feature or bug fix.
-5. Add documentation for your feature or bug fix.
-6. Add tests for your feature or bug fix.
-7. Run `rake test`. If your changes are not 100% covered, go back to step 6.
-8. If your change affects something in this README, please update it
-9. Commit and push your changes.
-10. Submit a pull request.
+1. Fork the project.
+1. Create a topic branch.
+1. Implement your feature or bug fix.
+1. Add documentation for your feature or bug fix.
+1. Add tests for your feature or bug fix.
+1. Run `rake test`. If your changes are not 100% covered, go back to step 6.
+1. If your change affects something in this README, please update it
+1. Commit and push your changes.
+1. Submit a pull request.
 
 ## Authorship
 
