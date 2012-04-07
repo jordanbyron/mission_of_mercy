@@ -55,6 +55,14 @@ MoM.Checkin.init = function(options){
     source: "/autocomplete/city.json"
   });
 
+  $('#patient_race_other').autocomplete({
+    source: "/autocomplete/race.json"
+  });
+
+  $('#patient_survey_attributes_heard_about_other').autocomplete({
+    source: "/autocomplete/heard_about_clinic.json"
+  });
+
   $('#bottom_survey a.back').click(function(e){
     MoM.Checkin.showPatientDemographics();
 
