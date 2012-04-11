@@ -1,7 +1,0 @@
-%tr{:class=> cycle('even', 'odd')}
-  %td
-    = ClinicArea[flow.area_id].to_s.humanize
-    - if flow.treatment_area
-      \- #{flow.treatment_area.name}
-  %td
-    = flow.created_at.to_s(:time)

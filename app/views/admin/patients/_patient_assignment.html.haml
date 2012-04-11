@@ -1,7 +1,0 @@
-%tr{class: cycle('even', 'odd')}
-  %td
-    = assignment.treatment_area.name
-  %td
-    = assignment.created_at.to_s(:time)
-  %td
-    = assignment.checked_out_at.to_s(:time) if assignment.checked_out_at
